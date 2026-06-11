@@ -9,9 +9,7 @@ Explore my latest projects and articles, showcasing my expertise in React.js and
 ABOUT PAGE:
 
 - Passion Fuels Purpose! 
-- Hi, I'm CodeBucks, a web developer and UI/UX designer with a passion for creating beautiful, functional, 
-and user-centered digital experiences. With 4 years of experience in the field. I am always looking for 
-new and innovative ways to bring my clients' visions to life.
+- Hi, I'm Mai Tam (MaiTamDev), a passionate Fullstack Developer and Mobile App Builder specializing in TypeScript (React, Next.js), Flutter, and Python. Driven by the philosophy of building products that truly matter, I love exploring emerging technologies, resolving intricate bugs, and crafting seamless digital experiences.
 
 - I believe that design is about more than just making things look pretty – it's about solving problems and 
 creating intuitive, enjoyable experiences for users. 
