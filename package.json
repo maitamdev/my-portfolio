@@ -1,5 +1,5 @@
 {
-  "name": "bruno-simon-folio-2025",
+  "name": "maitamdev-portfolio",
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "compress": "node scripts/compress.js static/"
   },
-  "author": "",
+  "author": "MaiTamDev",
   "license": "ISC",
   "description": "",
   "dependencies": {

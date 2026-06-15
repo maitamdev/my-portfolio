@@ -24,7 +24,7 @@ const text = `
 ║ Mail           ⇒ maitamit062005@gmail.com
 ║ Facebook       ⇒ https://www.facebook.com/maitamdvfb
 ║ GitHub         ⇒ https://github.com/maitamdev
-║ LinkedIn       ⇒ https://linkedin.com
+║ LinkedIn       ⇒ https://linkedin.com/in/maitamdev
 ╚═══════════════════════╝
 
 ╔═ Debug ═══════════════╗
