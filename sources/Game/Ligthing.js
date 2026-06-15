@@ -40,6 +40,13 @@ export class Lighting
         this.updateShadow()
         this.setHelpers()
 
+        this.game.quality.events.on('change', () =>
+        {
+            this.mapSize = this.game.quality.level === 0 ? 1024 : 512
+            this.shadowRadius = this.game.quality.level === 0 ? 3 : 2
+            this.updateShadow()
+        })
+
         this.game.ticker.events.on('tick', () =>
         {
             this.update()
@@ -152,6 +159,7 @@ export class Lighting
 
     updateShadow()
     {
+        this.light.castShadow = this.game.quality.level === 0
         this.light.shadow.camera.top = this.shadowAmplitude
         this.light.shadow.camera.right = this.shadowAmplitude
         this.light.shadow.camera.bottom = - this.shadowAmplitude
@@ -164,12 +172,6 @@ export class Lighting
 
         this.light.shadow.camera.updateProjectionMatrix()
         this.light.shadow.mapSize.set(this.mapSize, this.mapSize)
-
-        this.game.quality.events.on('change', () =>
-        {
-            this.mapSize = this.game.quality.level === 0 ? 1024 : 512
-            this.light.shadow.mapSize.set(this.mapSize, this.mapSize)
-        })
     }
 
     updateCoordinates()

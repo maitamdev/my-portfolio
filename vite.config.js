@@ -20,7 +20,28 @@ export default {
     {
         outDir: '../dist', // Output in the dist/ folder
         emptyOutDir: true, // Empty the folder first
-        sourcemap: false // Add sourcemap
+        sourcemap: false, // Add sourcemap
+        rollupOptions:
+        {
+            output:
+            {
+                manualChunks(id)
+                {
+                    if (id.includes('node_modules'))
+                    {
+                        if (id.includes('three'))
+                        {
+                            return 'three'
+                        }
+                        if (id.includes('rapier'))
+                        {
+                            return 'rapier'
+                        }
+                        return 'vendor'
+                    }
+                }
+            }
+        }
     },
     plugins:
     [
