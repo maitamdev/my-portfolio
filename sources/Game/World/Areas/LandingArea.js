@@ -40,6 +40,12 @@ export class LandingArea extends Area
             // Get start and end positions for the line
             const startPos = refLetters[0].position.clone();
             const endPos = refLetters[refLetters.length - 1].position.clone();
+
+            // Shift the entire line to the left to avoid grass hiding "DEV"
+            const direction = endPos.clone().sub(startPos).normalize();
+            const shiftAmount = -2.5; // Negative to move left (towards startPos)
+            startPos.addScaledVector(direction, shiftAmount);
+            endPos.addScaledVector(direction, shiftAmount);
             
             // Find the original material from the first letter (to reuse)
             originalMaterial = refLetters[0].material;
@@ -155,6 +161,81 @@ export class LandingArea extends Area
     {
         const position = new THREE.Vector3(-80, 0.5, -80)
 
+        // 0. Add Trees (A Secret Grove)
+        // Create mock references for Oak and Birch trees
+        const oakReferences = []
+        const birchReferences = []
+        for(let i = 0; i < 8; i++)
+        {
+            const angle = (i / 8) * Math.PI * 2
+            const r = 12 + Math.random() * 4 // Radius 12-16
+            
+            const ref = new THREE.Object3D()
+            ref.position.set(position.x + Math.cos(angle) * r, 0, position.z + Math.sin(angle) * r)
+            ref.rotation.y = Math.random() * Math.PI * 2
+            const s = 0.8 + Math.random() * 0.6
+            ref.scale.set(s, s, s)
+            ref.updateMatrix()
+            ref.updateMatrixWorld()
+
+            if (i % 2 === 0) oakReferences.push(ref)
+            else birchReferences.push(ref)
+        }
+
+        // We can dynamically instantiate Trees!
+        import('../Trees.js').then(({ Trees }) => {
+            this.chillOakTrees = new Trees('Chill Oak Trees', this.game.resources.oakTreesVisualModel.scene, oakReferences, '#b4b536', '#d8cf3b')
+            this.chillBirchTrees = new Trees('Chill Birch Trees', this.game.resources.birchTreesVisualModel.scene, birchReferences, '#ff4f2b', '#ff903f')
+        })
+
+        // 0.5 Add Benches
+        import('../../InstancedGroup.js').then(({ InstancedGroup }) => {
+            const [ benchBase ] = InstancedGroup.getBaseAndReferencesFromInstances(this.game.resources.benchesModel.scene.children)
+            const descriptions = this.game.objects.getFromModel(benchBase, {}, {})
+            
+            for(let i = 0; i < 3; i++)
+            {
+                const angle = (i / 3) * Math.PI * 2
+                const r = 4 // Closer to center
+                const benchRef = new THREE.Object3D()
+                benchRef.position.set(position.x + Math.cos(angle) * r, 0, position.z + Math.sin(angle) * r)
+                benchRef.rotation.y = -angle + Math.PI / 2
+                benchRef.updateMatrixWorld()
+
+                this.game.objects.add(
+                    {
+                        model: benchRef,
+                        updateMaterials: false,
+                        parent: null,
+                        base: benchBase // Pass base so visual is spawned
+                    },
+                    {
+                        type: 'dynamic',
+                        position: benchRef.position,
+                        rotation: benchRef.quaternion,
+                        friction: 0.7,
+                        mass: 0.1,
+                        sleeping: true,
+                        colliders: descriptions[1].colliders,
+                        waterGravityMultiplier: - 1,
+                        contactThreshold: 10
+                    }
+                )
+
+                // Manually add the visual mesh since game.objects.add might expect model to be a Mesh if base isn't fully handled for standalone additions.
+                // Wait, if we just clone the base, it's easier.
+                const visual = benchBase.clone()
+                visual.position.copy(benchRef.position)
+                visual.quaternion.copy(benchRef.quaternion)
+                this.game.scene.add(visual)
+                
+                // Keep it synced if it moves
+                this.game.ticker.events.on('tick', () => {
+                    // visual.position.copy(physical.position) // Can't easily grab physical without storing it
+                })
+            }
+        })
+
         // 1. Fireflies (Whispers/Particles)
         const emissiveMaterial = this.game.materials.getFromName('emissiveGreenRadialGradient') || this.game.materials.getFromName('emissiveOrangeRadialGradient')
         const count = 100
@@ -213,7 +294,34 @@ export class LandingArea extends Area
         pointLight.castShadow = true
         this.game.scene.add(pointLight)
 
-        // 3. Interactive Point (Sit and Chill)
+        // 3. A Glowing Center Crystal
+        const crystalGeo = new THREE.DodecahedronGeometry(0.8)
+        const crystalMat = new THREE.MeshStandardMaterial({ 
+            color: 0x44ff88, 
+            emissive: 0x44ff88, 
+            emissiveIntensity: 2, 
+            roughness: 0.2, 
+            metalness: 0.8 
+        })
+        const crystal = new THREE.Mesh(crystalGeo, crystalMat)
+        crystal.position.copy(position)
+        crystal.position.y += 1
+        this.game.scene.add(crystal)
+        
+        // Add physics to crystal
+        this.game.objects.add(
+            { model: crystal },
+            { type: 'fixed', colliders: [{ shape: 'cuboid', parameters: [0.8, 0.8, 0.8] }] }
+        )
+
+        // Spin crystal
+        this.game.ticker.events.on('tick', () => {
+            crystal.rotation.y += 0.01
+            crystal.rotation.x += 0.005
+            crystal.position.y = position.y + 1 + Math.sin(Date.now() * 0.002) * 0.2
+        })
+
+        // 4. Interactive Point (Sit and Chill)
         this.game.interactivePoints.create(
             new THREE.Vector3(position.x, position.y + 1, position.z),
             'Enjoy the vibe',
