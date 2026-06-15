@@ -19,6 +19,11 @@ export class Lighting
         this.directionUniform = uniform(this.direction)
         this.colorUniform = uniform(color('#ffffff'))
         this.intensityUniform = uniform(1)
+        
+        this.headlightPosition = uniform(vec3(0, 0, 0))
+        this.headlightDirection = uniform(vec3(1, 0, 0))
+        this.headlightIntensity = uniform(float(1))
+
         this.count = 1
         this.mapSize = this.game.quality.level === 0 ? 1024 : 512
         this.shadowAmplitude = this.game.view.optimalArea.radius
@@ -213,5 +218,6 @@ export class Lighting
         // Apply day cycles values
         this.colorUniform.value.copy(this.game.dayCycles.properties.lightColor.value)
         this.intensityUniform.value = this.game.dayCycles.properties.lightIntensity.value
+        this.headlightIntensity.value = this.game.dayCycles.properties.electricField.value
     }
 }

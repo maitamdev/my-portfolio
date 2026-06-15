@@ -117,6 +117,21 @@ export class MeshDefaultMaterial extends THREE.MeshLambertNodeMaterial
                 const shadowColor = baseColor.rgb.mul(this.game.lighting.shadowColor).rgb
                 outputColor.assign(mix(outputColor, shadowColor, combinedShadowMix))
             }
+
+            // Headlight calculation (AFTER shadows so it illuminates them)
+            const toFragment = positionWorld.sub(this.game.lighting.headlightPosition)
+            const dist = toFragment.length()
+            const fragDir = toFragment.normalize()
+            
+            const spotEffect = fragDir.dot(this.game.lighting.headlightDirection)
+            const spotMix = spotEffect.smoothstep(0.85, 0.95)
+            
+            const lightFacing = reorientedNormal.dot(fragDir.negate()).max(0)
+            const attenuation = dist.div(30.0).clamp(0, 1).oneMinus().pow(2)
+            
+            // Add headlight on top of everything
+            const headlightColor = color('#ffffff').mul(spotMix).mul(attenuation).mul(lightFacing).mul(8.0).mul(this.game.lighting.headlightIntensity)
+            outputColor.addAssign(headlightColor.mul(baseColor))
             
             // Fog
             if(this.hasFog)

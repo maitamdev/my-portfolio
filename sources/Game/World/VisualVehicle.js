@@ -25,6 +25,7 @@ export class VisualVehicle
         this.setBoostTrails()
         this.setBoostAnimation()
         this.setScreenPosition()
+        this.setHeadlights()
         this.setPaints()
 
         this.tickCallback = () =>
@@ -124,6 +125,12 @@ export class VisualVehicle
 
         // Wheel
         this.game.materials.updateObject(this.parts.wheelContainer)
+    }
+
+    setHeadlights()
+    {
+        // Headlights are now entirely handled via shaders in MeshDefaultMaterial
+        // No physical SpotLight objects are needed, as they interfere with global shadows.
     }
 
     setPaints()
@@ -419,6 +426,14 @@ export class VisualVehicle
     {
         const physicalVehicle = this.game.physicalVehicle
         
+        // Update headlight global uniforms
+        this.game.lighting.headlightPosition.value.copy(physicalVehicle.position)
+        this.game.lighting.headlightPosition.value.y += 0.5 // Move up to headlight level
+        
+        const forward = new THREE.Vector3(1, 0, 0)
+        forward.applyQuaternion(physicalVehicle.quaternion).normalize()
+        this.game.lighting.headlightDirection.value.copy(forward)
+
         // Chassis
         this.parts.chassis.position.copy(physicalVehicle.position)
         this.parts.chassis.quaternion.copy(physicalVehicle.quaternion)
