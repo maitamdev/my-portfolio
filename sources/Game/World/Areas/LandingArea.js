@@ -99,8 +99,8 @@ export class LandingArea extends Area
                 if (char === 'M') {
                     mesh.add(createBox(0.22, 1.4, 0.4, -0.46, 0, 0));
                     mesh.add(createBox(0.22, 1.4, 0.4, 0.46, 0, 0));
-                    mesh.add(createBox(0.2, 0.85, 0.4, -0.22, 0.18, 0, 0, 0, -0.5));
-                    mesh.add(createBox(0.2, 0.85, 0.4, 0.22, 0.18, 0, 0, 0, 0.5));
+                    mesh.add(createBox(0.2, 0.85, 0.4, -0.22, -0.05, 0, 0, 0, 0.5));
+                    mesh.add(createBox(0.2, 0.85, 0.4, 0.22, -0.05, 0, 0, 0, -0.5));
                 } else if (char === 'A') {
                     mesh.add(createBox(0.22, 1.42, 0.4, -0.26, 0, 0, 0, 0, -0.18));
                     mesh.add(createBox(0.22, 1.42, 0.4, 0.26, 0, 0, 0, 0, 0.18));
@@ -121,8 +121,8 @@ export class LandingArea extends Area
                     mesh.add(createBox(0.5, 0.22, 0.4, 0.025, 0, 0));
                     mesh.add(createBox(0.7, 0.25, 0.4, 0.125, -0.575, 0));
                 } else if (char === 'V') {
-                    mesh.add(createBox(0.25, 1.46, 0.4, -0.28, 0.03, 0, 0, 0, -0.22));
-                    mesh.add(createBox(0.25, 1.46, 0.4, 0.28, 0.03, 0, 0, 0, 0.22));
+                    mesh.add(createBox(0.25, 1.46, 0.4, -0.28, 0.03, 0, 0, 0, 0.22));
+                    mesh.add(createBox(0.25, 1.46, 0.4, 0.28, 0.03, 0, 0, 0, -0.22));
                 }
             }
             
