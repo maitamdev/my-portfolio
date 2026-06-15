@@ -148,8 +148,101 @@ export class LandingArea extends Area
         this.setBonfire()
         this.setAchievement()
         this.setDestructionPark()
+        this.setChillSpot()
     }
  
+    setChillSpot()
+    {
+        const position = new THREE.Vector3(-80, 0.5, -80)
+
+        // 1. Fireflies (Whispers/Particles)
+        const emissiveMaterial = this.game.materials.getFromName('emissiveGreenRadialGradient') || this.game.materials.getFromName('emissiveOrangeRadialGradient')
+        const count = 100
+        const elevation = uniform(10)
+        const positions = new Float32Array(count * 3)
+        const scales = new Float32Array(count)
+
+        for(let i = 0; i < count; i++)
+        {
+            const i3 = i * 3
+            const angle = Math.PI * 2 * Math.random()
+            const radius = Math.pow(Math.random(), 1.5) * 15 // Wide area
+            positions[i3 + 0] = Math.cos(angle) * radius
+            positions[i3 + 1] = Math.random()
+            positions[i3 + 2] = Math.sin(angle) * radius
+            scales[i] = 0.05 + Math.random() * 0.1
+        }
+        
+        const positionAttribute = instancedArray(positions, 'vec3').toAttribute()
+        const scaleAttribute = instancedArray(scales, 'float').toAttribute()
+
+        const material = new THREE.SpriteNodeMaterial()
+        material.outputNode = emissiveMaterial.outputNode
+        const progress = float(0).toVar()
+
+        material.positionNode = Fn(() =>
+        {
+            const newPosition = positionAttribute.toVar()
+            // Slower animation
+            progress.assign(newPosition.y.add(this.localTime.mul(0.1).mul(newPosition.y)).fract())
+
+            newPosition.y.assign(progress.mul(elevation))
+            newPosition.xz.addAssign(this.game.wind.direction.mul(progress).mul(2.0))
+
+            const progressHide = step(0.9, progress).mul(100)
+            newPosition.y.addAssign(progressHide)
+            
+            return newPosition
+        })()
+        material.scaleNode = Fn(() =>
+        {
+            const progressScale = progress.remapClamp(0.5, 1, 1, 0)
+            return scaleAttribute.mul(progressScale)
+        })()
+
+        const geometry = new THREE.CircleGeometry(0.5, 8)
+        const particles = new THREE.Mesh(geometry, material)
+        particles.position.copy(position)
+        particles.count = count
+        this.game.scene.add(particles)
+
+        // 2. A Magical Glowing Light
+        const pointLight = new THREE.PointLight(0x44ff88, 5, 20)
+        pointLight.position.copy(position)
+        pointLight.position.y += 2
+        pointLight.castShadow = true
+        this.game.scene.add(pointLight)
+
+        // 3. Interactive Point (Sit and Chill)
+        this.game.interactivePoints.create(
+            new THREE.Vector3(position.x, position.y + 1, position.z),
+            'Enjoy the vibe',
+            InteractivePoints.ALIGN_CENTER,
+            InteractivePoints.STATE_DEFAULT,
+            () =>
+            {
+                // Action: Focus camera on the chill spot and play sound
+                this.game.audio.groups.get('interact').playRandomNext(1, position)
+                // Disable tracking so the camera locks onto the chill spot
+                this.game.view.focusPoint.isTracking = false
+                this.game.view.focusPoint.position.copy(position)
+                this.game.view.focusPoint.smoothedPosition.copy(position)
+            },
+            () =>
+            {
+                this.game.inputs.interactiveButtons.addItems(['interact'])
+            },
+            () =>
+            {
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
+            },
+            () =>
+            {
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
+            }
+        )
+    }
+
     setLetters()
     {
         const references = this.references.items.get('letters')

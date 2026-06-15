@@ -35,6 +35,13 @@ export class Respawns
 
             this.items.set(name, item)
         }
+
+        // Add custom Chill Spot respawn
+        this.items.set('chillSpot', {
+            name: 'chillSpot',
+            position: new THREE.Vector3(-80, 4, -80),
+            rotation: 0
+        })
     }
 
     getByName(name)
