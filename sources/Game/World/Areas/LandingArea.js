@@ -10,29 +10,154 @@ export class LandingArea extends Area
 {
     constructor(model)
     {
+        // 1. Rebuild letters array to spell "MAI TAM DEV" (11 characters)
+        const text = ['M', 'A', 'I', ' ', 'T', 'A', 'M', ' ', 'D', 'E', 'V'];
+        
+        // Find existing reference letters
+        const refLetters = model.children.filter(c => c.name.startsWith('refLetters'));
+        
+        // Remove them from model.children
+        model.children = model.children.filter(c => !c.name.startsWith('refLetters'));
+        
+        // Sort original letters by x position (left-to-right)
+        refLetters.sort((a, b) => a.position.x - b.position.x);
+        
+        // Get start and end positions for the line
+        const startPos = refLetters[0].position.clone();
+        const endPos = refLetters[refLetters.length - 1].position.clone();
+        
+        // Find the original material from the first letter (to reuse)
+        const originalMaterial = refLetters[0].material;
+        
+        const newRefLetters = [];
+        
+        // Re-use or clone to create 11 letter groups
+        for (let i = 0; i < text.length; i++) {
+            let mesh;
+            if (i < refLetters.length) {
+                mesh = refLetters[i];
+            } else {
+                mesh = refLetters[0].clone();
+            }
+            mesh.name = `refLettersPhysicalDynamic${i.toString().padStart(3, '0')}`;
+            
+            // Interpolate position
+            const t = i / (text.length - 1);
+            mesh.position.lerpVectors(startPos, endPos, t);
+            
+            const char = text[i];
+            if (char === ' ') {
+                mesh.userData.preventAutoAdd = true;
+                mesh.visible = false;
+            } else {
+                mesh.userData.preventAutoAdd = false;
+                mesh.visible = true;
+                
+                // Clear original geometry (make it empty)
+                if (mesh.geometry) {
+                    mesh.geometry.dispose();
+                    mesh.geometry = new THREE.BufferGeometry();
+                }
+                
+                // Remove existing children except the cuboid collider
+                const childrenToKeep = [];
+                for (const child of [...mesh.children]) {
+                    if (child.name.startsWith('cuboid')) {
+                        childrenToKeep.push(child);
+                        
+                        // Adjust cuboid scale to match the character
+                        if (char === 'I') {
+                            child.scale.x = 0.4;
+                        } else if (char === 'M') {
+                            child.scale.x = 1.5;
+                        } else {
+                            child.scale.x = 1.2;
+                        }
+                    } else {
+                        child.removeFromParent();
+                    }
+                }
+                mesh.children = childrenToKeep;
+                
+                // Helper to create blocky parts
+                const createBox = (w, h, d, px, py, pz, rx = 0, ry = 0, rz = 0) => {
+                    const geo = new THREE.BoxGeometry(w, h, d);
+                    const uvAttr = geo.attributes.uv;
+                    if (uvAttr) {
+                        for (let k = 0; k < uvAttr.count; k++) {
+                            uvAttr.setXY(k, 0.7356297969818115, 0.5);
+                        }
+                        uvAttr.needsUpdate = true;
+                    }
+                    const subMesh = new THREE.Mesh(geo, originalMaterial);
+                    subMesh.position.set(px, py, pz);
+                    subMesh.rotation.set(rx, ry, rz);
+                    return subMesh;
+                };
+                
+                // Add the specific letter components
+                if (char === 'M') {
+                    mesh.add(createBox(0.22, 1.4, 0.4, -0.46, 0, 0));
+                    mesh.add(createBox(0.22, 1.4, 0.4, 0.46, 0, 0));
+                    mesh.add(createBox(0.2, 0.85, 0.4, -0.22, 0.18, 0, 0, 0, -0.5));
+                    mesh.add(createBox(0.2, 0.85, 0.4, 0.22, 0.18, 0, 0, 0, 0.5));
+                } else if (char === 'A') {
+                    mesh.add(createBox(0.22, 1.42, 0.4, -0.26, 0, 0, 0, 0, -0.18));
+                    mesh.add(createBox(0.22, 1.42, 0.4, 0.26, 0, 0, 0, 0, 0.18));
+                    mesh.add(createBox(0.42, 0.22, 0.4, 0, -0.1, 0));
+                } else if (char === 'I') {
+                    mesh.add(createBox(0.25, 1.4, 0.4, 0, 0, 0));
+                } else if (char === 'T') {
+                    mesh.add(createBox(1.0, 0.25, 0.4, 0, 0.575, 0));
+                    mesh.add(createBox(0.25, 1.15, 0.4, 0, -0.125, 0));
+                } else if (char === 'D') {
+                    mesh.add(createBox(0.25, 1.4, 0.4, -0.375, 0, 0));
+                    mesh.add(createBox(0.55, 0.22, 0.4, 0.025, 0.59, 0));
+                    mesh.add(createBox(0.55, 0.22, 0.4, 0.025, -0.59, 0));
+                    mesh.add(createBox(0.25, 0.96, 0.4, 0.375, 0, 0));
+                } else if (char === 'E') {
+                    mesh.add(createBox(0.25, 1.4, 0.4, -0.35, 0, 0));
+                    mesh.add(createBox(0.7, 0.25, 0.4, 0.125, 0.575, 0));
+                    mesh.add(createBox(0.5, 0.22, 0.4, 0.025, 0, 0));
+                    mesh.add(createBox(0.7, 0.25, 0.4, 0.125, -0.575, 0));
+                } else if (char === 'V') {
+                    mesh.add(createBox(0.25, 1.46, 0.4, -0.28, 0.03, 0, 0, 0, -0.22));
+                    mesh.add(createBox(0.25, 1.46, 0.4, 0.28, 0.03, 0, 0, 0, 0.22));
+                }
+            }
+            
+            newRefLetters.push(mesh);
+        }
+        
+        // Add rebuilt letters back to model
+        model.children.push(...newRefLetters);
+        
         super(model)
-
+ 
         this.localTime = uniform(0)
-
+ 
         this.setLetters()
         this.setKiosk()
         this.setControls()
         this.setBonfire()
         this.setAchievement()
     }
-
+ 
     setLetters()
     {
         const references = this.references.items.get('letters')
-
+ 
         for(const reference of references)
         {
-            const physical = reference.userData.object.physical
-            physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
-            physical.colliders[0].setContactForceEventThreshold(5)
-            physical.onCollision = (force, position) =>
-            {
-                this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
+            const object = reference.userData.object
+            if (object && object.physical) {
+                const physical = object.physical
+                physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
+                physical.colliders[0].setContactForceEventThreshold(5)
+                physical.onCollision = (force, position) =>
+                {
+                    this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
+                }
             }
         }
     }
