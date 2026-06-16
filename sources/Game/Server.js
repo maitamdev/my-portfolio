@@ -1,4 +1,3 @@
-import msgpack from 'msgpack-lite'
 import { v4 as uuidv4 } from 'uuid'
 import { Events } from './Events.js'
 import { Game } from './Game.js'
@@ -19,6 +18,8 @@ export class Server
 
         this.connected = false
         this.initData = null
+        this.codec = null
+        this.codecPromise = null
         this.events = new Events()
         document.documentElement.classList.add('is-server-offline')
     }
@@ -50,6 +51,8 @@ export class Server
             document.documentElement.classList.remove('is-server-offline')
             document.documentElement.classList.add('is-server-online')
             this.events.trigger('connected')
+
+            this.loadCodec()
 
             // On message
             this.socket.addEventListener('message', (message) =>
@@ -102,8 +105,22 @@ export class Server
         })
     }
 
-    onReceive(message)
+    async loadCodec()
     {
+        if(!this.codecPromise)
+        {
+            this.codecPromise = import('msgpack-lite').then(module => module.default ?? module)
+        }
+
+        this.codec = await this.codecPromise
+
+        return this.codec
+    }
+
+    async onReceive(message)
+    {
+        await this.loadCodec()
+
         const data = this.decode(message.data)
     
     
@@ -118,16 +135,19 @@ export class Server
         if(!this.connected)
             return false
 
+        if(!this.codec)
+            return false
+
         this.socket.send(this.encode({ uuid: this.uuid, ...message }))
     }
 
     decode(data)
     {
-        return msgpack.decode(new Uint8Array(data))
+        return this.codec.decode(new Uint8Array(data))
     }
 
     encode(data)
     {
-        return msgpack.encode(data)
+        return this.codec.encode(data)
     }
 }

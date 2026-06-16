@@ -37,10 +37,12 @@ export class Rendering
 
     async setRenderer()
     {
+        const forceWebGL = import.meta.env.VITE_FORCE_WEBGL === '1' || import.meta.env.VITE_FORCE_WEBGL === 'true' || !!location.hash.match(/webgl/i)
+
         this.renderer = new THREE.WebGPURenderer({
             canvas: this.game.canvasElement,
             powerPreference: 'high-performance',
-            forceWebGL: true,
+            forceWebGL,
             antialias: this.game.viewport.pixelRatio < 2
         })
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)

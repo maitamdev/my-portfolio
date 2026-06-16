@@ -6,6 +6,8 @@ import { Area } from './Area.js'
 import gsap from 'gsap'
 import { MeshDefaultMaterial } from '../../Materials/MeshDefaultMaterial.js'
 import { Game } from '../../Game.js'
+import { InstancedGroup } from '../../InstancedGroup.js'
+import { Trees } from '../Trees.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
@@ -107,7 +109,7 @@ export class LandingArea extends Area
             
             // Asynchronously load font and generate beautiful 3D text
             const loader = new FontLoader();
-            loader.load('/fonts/helvetiker_bold.typeface.json', (font) => {
+            loader.load('fonts/helvetiker_bold.typeface.json', (font) => {
                 for (let i = 0; i < text.length; i++) {
                     const char = text[i];
                     if (char === ' ') continue;
@@ -182,59 +184,40 @@ export class LandingArea extends Area
             else birchReferences.push(ref)
         }
 
-        // We can dynamically instantiate Trees!
-        import('../Trees.js').then(({ Trees }) => {
-            this.chillOakTrees = new Trees('Chill Oak Trees', this.game.resources.oakTreesVisualModel.scene, oakReferences, '#b4b536', '#d8cf3b')
-            this.chillBirchTrees = new Trees('Chill Birch Trees', this.game.resources.birchTreesVisualModel.scene, birchReferences, '#ff4f2b', '#ff903f')
-        })
+        this.chillOakTrees = new Trees('Chill Oak Trees', this.game.resources.oakTreesVisualModel.scene, oakReferences, '#b4b536', '#d8cf3b')
+        this.chillBirchTrees = new Trees('Chill Birch Trees', this.game.resources.birchTreesVisualModel.scene, birchReferences, '#ff4f2b', '#ff903f')
 
         // 0.5 Add Benches
-        import('../../InstancedGroup.js').then(({ InstancedGroup }) => {
-            const [ benchBase ] = InstancedGroup.getBaseAndReferencesFromInstances(this.game.resources.benchesModel.scene.children)
-            const descriptions = this.game.objects.getFromModel(benchBase, {}, {})
-            
-            for(let i = 0; i < 3; i++)
-            {
-                const angle = (i / 3) * Math.PI * 2
-                const r = 4 // Closer to center
-                const benchRef = new THREE.Object3D()
-                benchRef.position.set(position.x + Math.cos(angle) * r, 0, position.z + Math.sin(angle) * r)
-                benchRef.rotation.y = -angle + Math.PI / 2
-                benchRef.updateMatrixWorld()
+        const [ benchBase ] = InstancedGroup.getBaseAndReferencesFromInstances(this.game.resources.benchesModel.scene.children)
+        const descriptions = this.game.objects.getFromModel(benchBase, {}, {})
 
-                this.game.objects.add(
-                    {
-                        model: benchRef,
-                        updateMaterials: false,
-                        parent: null,
-                        base: benchBase // Pass base so visual is spawned
-                    },
-                    {
-                        type: 'dynamic',
-                        position: benchRef.position,
-                        rotation: benchRef.quaternion,
-                        friction: 0.7,
-                        mass: 0.1,
-                        sleeping: true,
-                        colliders: descriptions[1].colliders,
-                        waterGravityMultiplier: - 1,
-                        contactThreshold: 10
-                    }
-                )
+        for(let i = 0; i < 3; i++)
+        {
+            const angle = (i / 3) * Math.PI * 2
+            const r = 4 // Closer to center
+            const bench = benchBase.clone()
+            bench.position.set(position.x + Math.cos(angle) * r, 0, position.z + Math.sin(angle) * r)
+            bench.rotation.y = -angle + Math.PI / 2
+            bench.updateMatrixWorld()
 
-                // Manually add the visual mesh since game.objects.add might expect model to be a Mesh if base isn't fully handled for standalone additions.
-                // Wait, if we just clone the base, it's easier.
-                const visual = benchBase.clone()
-                visual.position.copy(benchRef.position)
-                visual.quaternion.copy(benchRef.quaternion)
-                this.game.scene.add(visual)
-                
-                // Keep it synced if it moves
-                this.game.ticker.events.on('tick', () => {
-                    // visual.position.copy(physical.position) // Can't easily grab physical without storing it
-                })
-            }
-        })
+            this.game.objects.add(
+                {
+                    model: bench,
+                    updateMaterials: false,
+                },
+                {
+                    type: 'dynamic',
+                    position: bench.position,
+                    rotation: bench.quaternion,
+                    friction: 0.7,
+                    mass: 0.1,
+                    sleeping: true,
+                    colliders: descriptions[1].colliders,
+                    waterGravityMultiplier: - 1,
+                    contactThreshold: 10
+                }
+            )
+        }
 
         // 1. Fireflies (Whispers/Particles)
         const emissiveMaterial = this.game.materials.getFromName('emissiveGreenRadialGradient') || this.game.materials.getFromName('emissiveOrangeRadialGradient')
@@ -318,7 +301,7 @@ export class LandingArea extends Area
         this.game.ticker.events.on('tick', () => {
             crystal.rotation.y += 0.01
             crystal.rotation.x += 0.005
-            crystal.position.y = position.y + 1 + Math.sin(Date.now() * 0.002) * 0.2
+            crystal.position.y = position.y + 1 + Math.sin(this.game.ticker.elapsedScaled * 0.5) * 0.2
         })
 
         // 4. Interactive Point (Sit and Chill)
@@ -330,7 +313,7 @@ export class LandingArea extends Area
             () =>
             {
                 // Action: Focus camera on the chill spot and play sound
-                this.game.audio.groups.get('interact').playRandomNext(1, position)
+                this.game.audio.groups.get('click')?.play(true)
                 // Disable tracking so the camera locks onto the chill spot
                 this.game.view.focusPoint.isTracking = false
                 this.game.view.focusPoint.position.copy(position)
