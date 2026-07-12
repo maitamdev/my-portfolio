@@ -37,7 +37,18 @@ export class Rendering
 
     async setRenderer()
     {
-        const forceWebGL = import.meta.env.VITE_FORCE_WEBGL === '1' || import.meta.env.VITE_FORCE_WEBGL === 'true' || !!location.hash.match(/webgl/i)
+        // Default to WebGL: Chrome WebGPU can throw
+        // "drawIndexed ... Value is not of type 'unsigned long'" with this scene.
+        // Opt into WebGPU with VITE_FORCE_WEBGPU=1 or #webgpu.
+        const preferWebGPU =
+            import.meta.env.VITE_FORCE_WEBGPU === '1' ||
+            import.meta.env.VITE_FORCE_WEBGPU === 'true' ||
+            !!location.hash.match(/webgpu/i)
+        const forceWebGL =
+            !preferWebGPU ||
+            import.meta.env.VITE_FORCE_WEBGL === '1' ||
+            import.meta.env.VITE_FORCE_WEBGL === 'true' ||
+            !!location.hash.match(/webgl/i)
 
         this.renderer = new THREE.WebGPURenderer({
             canvas: this.game.canvasElement,
