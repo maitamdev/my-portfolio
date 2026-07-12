@@ -75,6 +75,21 @@ export default [
         ]
     },
     {
+        title: 'SORA POS',
+        titleSmall: [ 'SORA', 'POS' ],
+        url: 'https://sora-pos.vercel.app',
+        attributes:
+        {
+            role: 'Fullstack Developer',
+            with: [ 'POS', 'TypeScript' ]
+        },
+        distinctions: [],
+        images:
+        [
+            'sora-pos.png'
+        ]
+    },
+    {
         title: 'Build ChatGPT From Scratch',
         titleSmall: [ 'Build', 'ChatGPT' ],
         url: 'https://github.com/maitamdev/build-chatgpt-from-scratch',

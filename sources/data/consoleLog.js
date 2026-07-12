@@ -20,13 +20,14 @@ Featured
   DHV Guiding   => https://dhv-guiding-light.vercel.app
   SCS GO        => https://scs-go.vercel.app
   SORA POS      => https://sora-pos.vercel.app
+  AIoT Learn    => https://aiot-elearning-platform.vercel.app
 
 Socials
   Website   => https://maitamsite.site
   GitHub    => https://github.com/maitamdev
   LinkedIn  => https://linkedin.com/in/maitam-dev-403220399
-  Mail      => maitamit062005@gmail.com
   Facebook  => https://www.facebook.com/maitamdvfb
+  Mail      => maitamit062005@gmail.com
 
 Debug
   Add #debug to the URL and reload.

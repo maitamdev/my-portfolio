@@ -1,151 +1,68 @@
 # MaiTamDev Portfolio
 
-![image info](./static/social/share-image.png)
+![MaiTamDev share image](./static/social/share-image.png)
+
+Interactive 3D portfolio of **MaiTamDev** — Fullstack Developer from Vietnam.
+
+Built on a Three.js + Rapier interactive world (based on Bruno Simon’s portfolio engine), customized with MaiTam content, projects, and branding.
+
+Live: [maitamsite.site](https://maitamsite.site) · GitHub: [maitamdev](https://github.com/maitamdev)
 
 ## Setup
 
-Create `.env` file based on `.env.example`
+1. Install [Node.js](https://nodejs.org/en/download/)
+2. Copy env file:
 
-Download and install [Node.js](https://nodejs.org/en/download/) then run this followed commands:
+```bash
+cp .env.example .env
+```
 
-``` bash
+3. Install and run:
+
+```bash
 # Install dependencies
 npm install --force
 
-# Serve at localhost:1234
+# Dev server (default Vite port, usually http://localhost:5173)
 npm run dev
 
-# Build for production in the dist/ directory
+# Production build → dist/
 npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## Game loop
+Optional:
 
-#### 0
+```bash
+# Regenerate career labels / lab cards / share image placeholders
+npm run generate-assets
 
-- Time
-- Inputs
+# Compress static GLB / textures (needs KTX tooling for full pipeline)
+npm run compress
+```
 
-#### 1
+## Production notes
 
-- Player:pre-physics (Inputs)
+- Renderer defaults to **WebGL** for Chrome stability. Opt into WebGPU with `#webgpu` or `VITE_FORCE_WEBGPU=1`.
+- Multiplayer features (whispers, circuit leaderboard) need `VITE_SERVER_URL`. Without it the site stays fully playable offline.
+- Recommended production env:
+  - `VITE_COMPRESSED=1`
+  - `VITE_MUSIC=1`
+  - `VITE_LOG=0`
+  - `VITE_ANALYTICS_TAG=` (optional)
+  - `VITE_SERVER_URL=` (optional)
 
-#### 2
+## Deploy (Vercel)
 
-- PhysicalVehicle:pre-physics (Player:pre-physics)
+- Build command: `npm run build`
+- Output directory: `dist`
+- Framework preset: Other
+- `vercel.json` is included for cache headers on assets / WASM / GLB / KTX
 
-#### 3
+## Credits
 
-- Physics
-
-#### 4
-
-- PhysicsWireframe (Physics)
-- Objects (Physics)
-
-#### 5
-
-- PhysicalVehicle:post-physics (Player:pre-physics)
-
-#### 6
-
-- Player:post-physics (Physics, PhysicalVehicle:post-physics)
-
-#### 7
-
-- View (Inputs, Player:post-physics)
-
-#### 8
-
-- Intro
-- DayCycles
-- YearCycles
-- Weather (DayCycles, YearCycles)
-- Zones (Player:post-physics)
-- VisualVehicle (PhysicalVehicle:post-physics, Inputs, Player:post-physics, View)
-
-#### 9
-
-- Wind (Weather)
-- Lighting (DayCycles, View)
-- Tornado (DayCycles, PhysicalVehicle)
-- InteractivePoints (Player:post-physics)
-- Tracks (VisualVehicle)
-
-#### 10
-
-- Area++ (View, PhysicalVehicle:post-physics, Player:post-physics, Wind)
-- Foliage (VisualVehicle, View)
-- Fog (View)
-- Reveal (DayCycles)
-- Terrain (Tracks)
-- Trails (PhysicalVehicle)
-- Floor (View)
-- Grass (View, Wind)
-- Leaves (View, PhysicalVehicle)
-- Lightnings (View, Weather)
-- RainLines (View, Weather, Reveal)
-- Snow (View, Weather, Reveal, Tracks)
-- VisualTornado (Tornado)
-- WaterSurface (Weather, View)
-- Benches (Objects)
-- Bricks (Objects)
-- ExplosiveCrates (Objects)
-- Fences (Objects)
-- Lanterns (Objects)
-- Whispers (Player)
-
-#### 13
-
-- InstancedGroup (Objects, [SpecificObjects])
-
-#### 14
-
-- Audio (View, Objects)
-- Notifications
-- Title (PhysicalVehicle:post-physics)
-
-#### 998
-
-- Rendering
-
-#### 999
-
-- Monitoring
-
-## Blender
-
-### Export
-
-- Mute the palette texture node (loaded and set in Three.js `Material` directly)
-- Use corresponding export presets
-- Don't use compression (will be done later)
-
-### Compress
-
-Run `npm run compress`
-
-Will do the following
-
-#### GLB
-
-- Traverses the `static/` folder looking for glb files (ignoring already compressed files)
-- Compresses embeded texture with `etc1s --quality 255` (lossy, GPU friendly)
-- Generates new files to preserve originals
-
-#### Texture files
-
-- Traverses the `static/` folder looking for `png|jpg` files (ignoring non-model related folders)
-- Compresses with default preset to `--encode etc1s --qlevel 255` (lossy, GPU friendly) or specific preset according to path
-- Generates new files to preserve originals
-
-#### UI files
-
-- Traverses the `static/ui.` folder looking for `png|jpg` files
-- Compresses to WebP
-
-#### Resources
-
-- https://gltf-transform.dev/cli
-- https://github.com/KhronosGroup/KTX-Software?tab=readme-ov-file
-- https://github.khronos.org/KTX-Software/ktxtools/toktx.html
+- Original 3D portfolio engine & world design: [Bruno Simon](https://bruno-simon.com)
+- MaiTamDev content, branding, projects, and customizations © 2026 MaiTamDev
+- License: MIT (see `license.md`)

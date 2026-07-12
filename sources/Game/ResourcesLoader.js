@@ -88,7 +88,7 @@ export class ResourcesLoader
             // Error
             const error = (_file) =>
             {
-                console.log(`Resources > Couldn't load file ${_file[1]}`)
+                console.warn(`Resources > Couldn't load file ${_file[1]}`)
                 reject(_file[1])
             }
 

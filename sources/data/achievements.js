@@ -12,13 +12,13 @@ export default
     [
         'areas',
         'Traveler',
-        'Vist every area.',
+        'Visit every area.',
         13,
         true // Unique
     ],
     [
         'projects',
-        'But can you fix the wifi?',
+        'Product tour complete',
         'Check every project in the <strong>projects</strong> area.',
         projectsData.length,
         true // Unique
@@ -33,7 +33,7 @@ export default
     [
         'cookie',
         'Wake & bake',
-        'Accept <strong>1</strong> cookies.',
+        'Accept <strong>1</strong> cookie.',
         1
     ],
     [

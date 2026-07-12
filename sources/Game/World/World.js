@@ -148,7 +148,6 @@ export class World
 
     setTestMesh()
     {
-        console.log(this.game.rendering.renderer.library)
         const testMesh = new THREE.Mesh(
             new THREE.SphereGeometry(1, 32, 32),
             new THREE.MeshBasicMaterial()

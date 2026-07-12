@@ -1,17 +1,18 @@
 {
   "name": "maitamdev-portfolio",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vite --mode development",
     "build": "vite build --mode production",
     "preview": "vite preview",
-    "compress": "node scripts/compress.js static/"
+    "compress": "node scripts/compress.js static/",
+    "generate-assets": "node scripts/generate-maitam-assets.js"
   },
   "author": "MaiTamDev",
-  "license": "ISC",
-  "description": "",
+  "license": "MIT",
+  "description": "Interactive 3D portfolio of MaiTamDev — fullstack developer from Vietnam.",
   "dependencies": {
     "@dimforge/rapier3d": "^0.17.3",
     "@gltf-transform/cli": "^4.1.0",

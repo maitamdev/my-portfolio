@@ -164,6 +164,17 @@ async function main()
 
     await shareImage()
 
+    // Featured project cards (used when real screenshots are not available yet)
+    const projectCards = [
+        { slug: 'sora-pos', title: 'SORA POS', subtitle: 'Point of sale · TypeScript', accent: '#f59e0b' },
+    ]
+
+    for(const item of projectCards)
+    {
+        const full = path.join(staticDir, 'projects', 'images', `${item.slug}.png`)
+        await cardImage({ file: full, width: 960, height: 540, title: item.title, subtitle: item.subtitle, accent: item.accent })
+    }
+
     // Lab cards (png only — LabArea will load png)
     for(const item of labItems)
     {
