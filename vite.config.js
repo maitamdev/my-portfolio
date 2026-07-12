@@ -71,36 +71,41 @@ export default {
             {
                 manualChunks(id)
                 {
-                    if (id.includes('node_modules'))
-                    {
-                        if (
-                            id.includes('msgpack-lite') ||
-                            id.includes('buffer') ||
-                            id.includes('base64-js') ||
-                            id.includes('ieee754') ||
-                            id.includes('isarray') ||
-                            id.includes('event-lite') ||
-                            id.includes('int64-buffer') ||
-                            id.includes('readable-stream') ||
-                            id.includes('safe-buffer') ||
-                            id.includes('string_decoder') ||
-                            id.includes('util-deprecate') ||
-                            id.includes('process') ||
-                            id.includes('vm-browserify')
-                        )
-                        {
-                            return 'server-codec'
-                        }
-                        if (id.includes('three'))
-                        {
-                            return 'three'
-                        }
-                        if (id.includes('rapier'))
-                        {
-                            return 'rapier'
-                        }
-                        return 'vendor'
-                    }
+                    // Normalize for Windows/Unix and Vite virtual modules
+                    const normalizedId = id.replaceAll('\\', '/')
+
+                    if (!normalizedId.includes('node_modules'))
+                        return
+
+                    // Keep Three intact first: broad matches like "buffer"/"process"
+                    // otherwise pull BufferGeometry/etc. into another chunk and cause
+                    // TDZ errors such as "Cannot access 'Texture' before initialization".
+                    if (normalizedId.includes('/three/') || normalizedId.includes('/three@'))
+                        return 'three'
+
+                    if (normalizedId.includes('/@dimforge/rapier3d') || normalizedId.includes('/rapier'))
+                        return 'rapier'
+
+                    const serverCodecPackages = [
+                        '/msgpack-lite/',
+                        '/buffer/',
+                        '/base64-js/',
+                        '/ieee754/',
+                        '/isarray/',
+                        '/event-lite/',
+                        '/int64-buffer/',
+                        '/readable-stream/',
+                        '/safe-buffer/',
+                        '/string_decoder/',
+                        '/util-deprecate/',
+                        '/process/',
+                        '/vm-browserify/',
+                    ]
+
+                    if (serverCodecPackages.some((pkg) => normalizedId.includes(pkg)))
+                        return 'server-codec'
+
+                    return 'vendor'
                 }
             }
         }
