@@ -155,7 +155,7 @@ export class CareerArea extends Area
         this.year.originZ = this.year.group.position.z
         this.year.size = 17
         this.year.offsetTarget = 0
-        this.year.start = 2008
+        this.year.start = 2023
         this.year.current = this.year.start
 
         //    Digit indexes

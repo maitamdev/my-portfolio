@@ -465,7 +465,9 @@ export class LabArea extends Area
                 resource = {}
                 resource.loaded = false
 
-                const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                const isPng = key.toLowerCase().endsWith('.png') || key.toLowerCase().endsWith('.jpg')
+                const loaderType = isPng ? 'texture' : 'textureKtx'
+                const loader = this.game.resourcesLoader.getLoader(loaderType)
 
                 loader.load(
                     path,
@@ -838,10 +840,13 @@ export class LabArea extends Area
                         if(mini.startedLoading)
                             return
 
-                        const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                        const miniKey = project.imageMini
+                        const isPng = miniKey.toLowerCase().endsWith('.png') || miniKey.toLowerCase().endsWith('.jpg')
+                        const loaderType = isPng ? 'texture' : 'textureKtx'
+                        const loader = this.game.resourcesLoader.getLoader(loaderType)
 
                         loader.load(
-                            `lab/images/${project.imageMini}`,
+                            `lab/images/${miniKey}`,
                             (loadedTexture) =>
                             {
                                 const alpha = uniform(0)
@@ -1316,8 +1321,9 @@ export class LabArea extends Area
         this.adjacents.previousIntersect.active = true
         this.url.intersect.active = true
 
-        // Deactivate physical vehicle
+        // Deactivate active mover (car or walker)
         this.game.physicalVehicle.deactivate()
+        this.game.physicalWalker?.deactivate()
 
         // Buttons
         this.game.inputs.interactiveButtons.clearItems()
@@ -1371,8 +1377,11 @@ export class LabArea extends Area
         this.adjacents.previousIntersect.active = false
         this.url.intersect.active = false
 
-        // Activate physical vehicle
-        this.game.physicalVehicle.activate()
+        // Restore active mover
+        if(this.game.player.locomotion === 'walk')
+            this.game.physicalWalker?.activate()
+        else
+            this.game.physicalVehicle.activate()
             
         // Buttons
         this.game.inputs.interactiveButtons.clearItems()

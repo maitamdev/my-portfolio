@@ -2,33 +2,38 @@ import * as THREE from 'three/webgpu'
 
 const text = `
 ========================================
- MaiTamDev Portfolio
+ MaiTamDev · Fullstack Developer
 ========================================
 
-Intro
-  Thank you for visiting my portfolio.
-  This is a custom 3D developer portfolio built with Three.js and Rapier.
+About
+  Software Engineering student from Vietnam.
+  Building AI-powered web & mobile products.
+  Company: ANTISCAM VN
+
+Stack
+  React · Next.js · TypeScript · Flutter
+  Firebase · Supabase · Python · Vite
+
+Featured
+  Anti-Scam     => https://anti-scam-kappa.vercel.app
+  9Router       => https://9router.com
+  DHV Guiding   => https://dhv-guiding-light.vercel.app
+  SCS GO        => https://scs-go.vercel.app
+  SORA POS      => https://sora-pos.vercel.app
 
 Socials
+  Website   => https://maitamsite.site
+  GitHub    => https://github.com/maitamdev
+  LinkedIn  => https://linkedin.com/in/maitam-dev-403220399
   Mail      => maitamit062005@gmail.com
   Facebook  => https://www.facebook.com/maitamdvfb
-  GitHub    => https://github.com/maitamdev
-  LinkedIn  => https://linkedin.com/in/maitamdev
 
 Debug
-  Add #debug to the URL and reload to open debug mode.
-  Press [V] to toggle the free camera.
+  Add #debug to the URL and reload.
+  Press [V] to toggle free camera.
 
-Three.js
-  Rendering library release: ${THREE.REVISION}
+Three.js r${THREE.REVISION}
   https://threejs.org/
-
-Source code
-  https://github.com/maitamdev/my-portfolio
-
-More links
-  Rapier    => https://rapier.rs/
-  Howler.js => https://howlerjs.com/
 ========================================
 `
 

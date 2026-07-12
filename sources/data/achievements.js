@@ -93,7 +93,7 @@ export default
     [
         'honk',
         'Honk',
-        'Honk me like one of your french driver.',
+        'Honk the horn 10 times.',
         10
     ],
     [

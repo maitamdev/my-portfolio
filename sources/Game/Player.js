@@ -9,12 +9,16 @@ export class Player
 {
     static STATE_DEFAULT = 1
     static STATE_LOCKED = 2
+    static LOCOMOTION_DRIVE = 'drive'
+    static LOCOMOTION_WALK = 'walk'
 
     constructor()
     {
         this.game = Game.getInstance()
         
         this.state = Player.STATE_DEFAULT
+        this.locomotion = Player.LOCOMOTION_DRIVE
+        document.documentElement.classList.add('is-driving')
         this.accelerating = 0
         this.steering = 0
         this.boosting = 0
@@ -41,6 +45,10 @@ export class Player
         this.game.physicalVehicle.chassis.physical.initialState.position.z = respawn.position.z
         this.game.physicalVehicle.moveTo(respawn.position, respawn.rotation)
 
+        // Walker starts disabled at same spawn
+        this.game.physicalWalker.moveTo(respawn.position, respawn.rotation)
+        this.game.physicalWalker.deactivate()
+
         this.game.ticker.events.on('tick', () =>
         {
             this.updatePrePhysics()
@@ -50,6 +58,81 @@ export class Player
         {
             this.updatePostPhysics()
         }, 6)
+    }
+
+    getMover()
+    {
+        return this.locomotion === Player.LOCOMOTION_WALK
+            ? this.game.physicalWalker
+            : this.game.physicalVehicle
+    }
+
+    setLocomotion(mode)
+    {
+        if(mode === this.locomotion)
+            return
+
+        if(this.state !== Player.STATE_DEFAULT)
+            return
+
+        const from = this.getMover()
+        const position = from.position.clone()
+        // Same yaw convention as PhysicsVehicle.moveTo / PhysicsWalker.yRotation
+        const rotation = this.locomotion === Player.LOCOMOTION_WALK
+            ? this.game.physicalWalker.yRotation
+            : (this.game.physicalVehicle.yRotation ?? 0)
+
+        if(mode === Player.LOCOMOTION_WALK)
+        {
+            // Car chassis (~1m) → walker feet (~0.4m)
+            position.y = 0.4
+            this.game.physicalVehicle.deactivate()
+            this.game.physicalWalker.moveTo(position, rotation)
+            this.game.physicalWalker.activate()
+            this.game.world.visualWalker?.setVisible(true)
+            if(this.game.world.visualVehicle?.parts?.chassis)
+                this.game.world.visualVehicle.parts.chassis.visible = false
+            this.locomotion = Player.LOCOMOTION_WALK
+            document.documentElement.classList.add('is-walking')
+            document.documentElement.classList.remove('is-driving')
+            this.game.notifications?.show?.(
+                /* html */`<div class="top"><div class="title">Walk mode</div></div><div class="bottom"><div class="description">Press C to switch back to the car</div></div>`,
+                'info',
+                2.5,
+                null,
+                'locomotion-walk'
+            )
+        }
+        else
+        {
+            // Walker feet (~0.4m) → car chassis (~1.1m)
+            position.y = Math.max(1.1, position.y + 0.7)
+            this.game.physicalWalker.deactivate()
+            this.game.world.visualWalker?.setVisible(false)
+            this.game.physicalVehicle.moveTo(position, rotation)
+            this.game.physicalVehicle.activate()
+            if(this.game.world.visualVehicle?.parts?.chassis)
+                this.game.world.visualVehicle.parts.chassis.visible = true
+            this.locomotion = Player.LOCOMOTION_DRIVE
+            document.documentElement.classList.add('is-driving')
+            document.documentElement.classList.remove('is-walking')
+            this.game.notifications?.show?.(
+                /* html */`<div class="top"><div class="title">Drive mode</div></div><div class="bottom"><div class="description">Press C to walk on foot</div></div>`,
+                'info',
+                2.5,
+                null,
+                'locomotion-drive'
+            )
+        }
+    }
+
+    toggleLocomotion()
+    {
+        this.setLocomotion(
+            this.locomotion === Player.LOCOMOTION_WALK
+                ? Player.LOCOMOTION_DRIVE
+                : Player.LOCOMOTION_WALK
+        )
     }
 
     setSounds()
@@ -76,6 +159,11 @@ export class Player
             antiSpam: 0.1,
             onPlaying: (item) =>
             {
+                if(this.locomotion === Player.LOCOMOTION_WALK)
+                {
+                    item.volume = 0
+                    return
+                }
                 item.volume = this.game.inputs.actions.get('honk').active ? 0.5 : 0
             }
         })
@@ -115,6 +203,11 @@ export class Player
                 volume: 0,
                 onPlaying: (item) =>
                 {
+                    if(this.locomotion === Player.LOCOMOTION_WALK)
+                    {
+                        item.volume = 0
+                        return
+                    }
                     const defaultElevation = 1.08
                     const inAirEffect = remapClamp(Math.abs(this.game.physicalVehicle.position.y - defaultElevation), 0, 2, 1, 0)
                     const speedEffect = Math.min(1, this.game.physicalVehicle.xzSpeed * 0.1)
@@ -131,6 +224,11 @@ export class Player
                 volume: 0,
                 onPlaying: (item) =>
                 {
+                    if(this.locomotion === Player.LOCOMOTION_WALK)
+                    {
+                        item.volume = 0
+                        return
+                    }
                     const directionRatio = (1 - Math.abs(this.game.physicalVehicle.forwardRatio)) * 0.6
                     
                     let brakeEffect = Math.max(directionRatio, this.game.player.braking) * this.game.physicalVehicle.xzSpeed * 0.15 * this.game.physicalVehicle.wheels.inContactCount / 4
@@ -159,6 +257,11 @@ export class Player
                 volume: 0,
                 onPlaying: (item) =>
                 {
+                    if(this.locomotion === Player.LOCOMOTION_WALK)
+                    {
+                        item.volume = 0
+                        return
+                    }
                     const accelerating = Math.abs(this.game.player.accelerating) * 0.5
                     const boosting = this.game.player.boosting + 1
                     const volume = Math.max(0.05, accelerating * boosting * 0.8)
@@ -180,6 +283,11 @@ export class Player
                 volume: 0,
                 onPlaying: (item) =>
                 {
+                    if(this.locomotion === Player.LOCOMOTION_WALK)
+                    {
+                        item.volume = 0
+                        return
+                    }
                     const speedEffect = clamp(this.game.physicalVehicle.xzSpeed * 0.1, 0, 1)
                     const volume = speedEffect * 0.3
                     const delta = volume - item.volume
@@ -201,6 +309,11 @@ export class Player
             volume: 0,
             onPlaying: (item) =>
             {
+                if(this.locomotion === Player.LOCOMOTION_WALK)
+                {
+                    item.volume = 0
+                    return
+                }
                 const accelerating = 0.5 + Math.abs(this.game.player.accelerating) * 0.5
                 const boosting = this.game.player.boosting
                 const volume = accelerating * boosting * 0.3
@@ -237,7 +350,18 @@ export class Player
             { name: 'suspensionsBackLeft',   categories: [ 'wandering', 'racing'              ], keys: [ 'Keyboard.Numpad1', 'Keyboard.Digit1' ] },
             { name: 'interact',              categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.Enter', 'Keyboard.KeyE', 'Keyboard.KeyF', 'Gamepad.cross' ] },
             { name: 'honk',                  categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.KeyH', 'Gamepad.l3' ] },
+            { name: 'toggleLocomotion',      categories: [ 'wandering', 'racing'              ], keys: [ 'Keyboard.KeyC', 'Gamepad.button9' ] },
         ])
+
+        // Toggle walk / drive
+        this.game.inputs.events.on('toggleLocomotion', (action) =>
+        {
+            if(this.state !== Player.STATE_DEFAULT)
+                return
+
+            if(action.active)
+                this.toggleLocomotion()
+        })
 
         // Respawn
         this.game.inputs.events.on('respawn', (action) =>
@@ -477,11 +601,17 @@ export class Player
             // Find respawn
             let respawn = respawnName ? this.game.respawns.getByName(respawnName) : this.game.respawns.getClosest(this.position)
 
-            // Update physical vehicle
-            this.game.physicalVehicle.moveTo(
+            // Update active mover
+            this.getMover().moveTo(
                 respawn.position,
                 respawn.rotation
             )
+
+            // Keep the other body parked at the same spot
+            if(this.locomotion === Player.LOCOMOTION_WALK)
+                this.game.physicalVehicle.moveTo(respawn.position, respawn.rotation)
+            else
+                this.game.physicalWalker.moveTo(respawn.position, respawn.rotation)
             
             this.state = Player.STATE_DEFAULT
             this.game.overlay.hide()
@@ -540,7 +670,7 @@ export class Player
             this.accelerating -= this.game.inputs.actions.get('backward').value
 
         /**
-         * Boosting
+         * Boosting (drive = nitro, walk = run)
          */
         if(this.game.inputs.actions.get('boost').active)
             this.boosting = 1
@@ -582,7 +712,6 @@ export class Player
                 })
             }
             this.accelerating = Math.pow(this.game.inputs.nipple.progress, 3)
-            // this.boosting = this.game.inputs.nipple.progress > 0.999
 
             const angleDeltaAbs = Math.abs(this.game.inputs.nipple.smallestAngle)
             const angleDeltaAbsNormalized = angleDeltaAbs / ((Math.PI * 2 - this.game.inputs.nipple.forwardAmplitude) / 2)
@@ -601,15 +730,32 @@ export class Player
 
     updatePostPhysics()
     {
+        const mover = this.getMover()
+
         // Position
-        this.position.copy(this.game.physicalVehicle.position)
+        this.position.copy(mover.position)
         this.position2 = new THREE.Vector2(this.position.x, this.position.z)
+
+        // Keep vehicle pose fields in sync while walking so foliage / tornado / title
+        // systems that still read physicalVehicle track the active player.
+        if(this.locomotion === Player.LOCOMOTION_WALK)
+        {
+            const vehicle = this.game.physicalVehicle
+            vehicle.position.copy(mover.position)
+            vehicle.forward.copy(mover.forward)
+            vehicle.quaternion.copy(mover.quaternion)
+            vehicle.speed = mover.speed
+            vehicle.xzSpeed = mover.xzSpeed
+            vehicle.forwardSpeed = mover.forwardSpeed
+            vehicle.forwardRatio = mover.forwardRatio
+            vehicle.yRotation = mover.yRotation
+        }
         
         // View > Focus point
         this.game.view.focusPoint.trackedPosition.copy(this.position)
 
-        // View > Speed lines
-        if(this.boosting && this.accelerating && this.game.physicalVehicle.speed > 15)
+        // View > Speed lines (drive only)
+        if(this.locomotion === Player.LOCOMOTION_DRIVE && this.boosting && this.accelerating && mover.speed > 15)
             this.game.view.speedLines.strength = 1
         else
             this.game.view.speedLines.strength = 0
@@ -620,11 +766,15 @@ export class Player
         this.game.tracks.focusPoint.set(this.position.x, this.position.z)
 
         // Inputs touch joystick
-        this.rotationY = Math.atan2(this.game.physicalVehicle.forward.z, this.game.physicalVehicle.forward.x)
+        if(this.locomotion === Player.LOCOMOTION_WALK)
+            this.rotationY = this.game.physicalWalker.yRotation
+        else
+            this.rotationY = Math.atan2(this.game.physicalVehicle.forward.z, this.game.physicalVehicle.forward.x)
+
         this.game.inputs.nipple.setCoordinates(this.position.x, this.position.y, this.position.z, this.rotationY)
 
-        // Sound
-        if(this.game.physicalVehicle.wheels.justTouchedCount > 1)
+        // Sound (vehicle only)
+        if(this.locomotion === Player.LOCOMOTION_DRIVE && this.game.physicalVehicle.wheels.justTouchedCount > 1)
         {
             this.sounds.spring1.play(this.game.physicalVehicle.wheels.justTouchedCount)
             this.sounds.spring2.play(this.game.physicalVehicle.wheels.justTouchedCount)
@@ -650,14 +800,8 @@ export class Player
         if(this.game.achievements.groups.get('goHigh') && elevation > this.game.achievements.groups.get('goHigh').progress)
             this.game.achievements.setProgress('goHigh', elevation)
 
-        // // Speed achievement
-        // const speedKmPerHour = Math.floor(this.game.physicalVehicle.xzSpeed / 1000 * 3600)
-
-        // if(this.game.achievements.groups.get('speed') && speedKmPerHour > this.game.achievements.groups.get('speed').progress)
-        //     this.game.achievements.setProgress('speed', speedKmPerHour)
-
-        // Distance driven
-        this.distanceDriven.value += this.game.physicalVehicle.xzSpeed * this.game.ticker.deltaScaled
+        // Distance driven / walked
+        this.distanceDriven.value += (mover.xzSpeed || 0) * this.game.ticker.deltaScaled
         const flooredDistanceDriven = Math.floor(this.distanceDriven.value)
 
         if(flooredDistanceDriven !== this.distanceDriven.floored)

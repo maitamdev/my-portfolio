@@ -456,6 +456,9 @@ export class PhysicsVehicle
 
     updatePrePhysics()
     {
+        if(this.game.player?.locomotion === 'walk')
+            return
+
         // Engine force
         const topSpeed = lerp(this.topSpeed, this.topSpeedBoost, this.game.player.boosting)
         const overflowSpeed = Math.max(0, this.speed - topSpeed)
@@ -514,6 +517,9 @@ export class PhysicsVehicle
 
     updatePostPhysics()
     {
+        if(this.game.player?.locomotion === 'walk')
+            return
+
         // Various measures
         const newPosition = new THREE.Vector3().copy(this.chassis.physical.body.translation())
         this.velocity = newPosition.clone().sub(this.position)

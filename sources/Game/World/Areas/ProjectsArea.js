@@ -1343,8 +1343,9 @@ export class ProjectsArea extends Area
         this.pagination.nextIntersect.active = true
         this.url.intersect.active = true
 
-        // Deactivate physical vehicle
+        // Deactivate active mover (car or walker)
         this.game.physicalVehicle.deactivate()
+        this.game.physicalWalker?.deactivate()
 
         // Buttons
         this.game.inputs.interactiveButtons.clearItems()
@@ -1403,8 +1404,11 @@ export class ProjectsArea extends Area
         this.pagination.nextIntersect.active = false
         this.url.intersect.active = false
 
-        // Activate physical vehicle
-        this.game.physicalVehicle.activate()
+        // Restore active mover
+        if(this.game.player.locomotion === 'walk')
+            this.game.physicalWalker?.activate()
+        else
+            this.game.physicalVehicle.activate()
             
         // Buttons
         this.game.inputs.interactiveButtons.clearItems([])

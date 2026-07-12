@@ -1,80 +1,80 @@
 export default [
     {
-        title: '3D Portfolio Starter',
-        url: 'https://github.com/maitamdev/Next.js-Developer-Portfolio-Starter-Code',
-        image: 'black-hole.ktx',
-        imageMini: 'black-hole-mini.ktx'
-    },
-    {
         title: 'Flutter Club Hub',
-        url: 'https://github.com/maitamdev/ft-club-hub',
-        image: 'infinite-world.ktx',
-        imageMini: 'infinite-world-mini.ktx'
+        url: 'https://flutter-club.vercel.app',
+        image: 'flutter-club.png',
+        imageMini: 'flutter-club-mini.png'
     },
     {
-        title: 'OS Teaching Assistant Chatbot',
-        url: 'https://github.com/maitamdev/os-teaching-assistant',
-        image: 'my-room-in-3d.ktx',
-        imageMini: 'my-room-in-3d-mini.ktx',
+        title: 'DHV Lingoo',
+        url: 'https://dhv-lingoo.vercel.app',
+        image: 'dhv-lingoo.png',
+        imageMini: 'dhv-lingoo-mini.png'
     },
     {
-        title: 'Advanced WebGL Shaders',
-        url: 'https://github.com/maitamdev',
-        image: 'particles-system.ktx',
-        imageMini: 'particles-system-mini.ktx'
+        title: 'TravelViet AI',
+        url: 'https://travel-viet.vercel.app',
+        image: 'travelviet-ai.png',
+        imageMini: 'travelviet-ai-mini.png'
     },
     {
-        title: 'React Glassmorphism UI',
-        url: 'https://github.com/maitamdev',
-        image: 'stylized-low-poly.ktx',
-        imageMini: 'stylized-low-poly-mini.ktx'
+        title: 'CourseAI Platform',
+        url: 'https://courseai-platform-two.vercel.app',
+        image: 'courseai.png',
+        imageMini: 'courseai-mini.png'
     },
     {
-        title: 'Next.js SaaS Boilerplate',
-        url: 'https://github.com/maitamdev',
-        image: 'holographic-terrain.ktx',
-        imageMini: 'holographic-terrain-mini.ktx'
+        title: 'Interview Practice',
+        url: 'https://interview-practice-tau.vercel.app',
+        image: 'interview-practice.png',
+        imageMini: 'interview-practice-mini.png'
     },
     {
-        title: 'Mobile E-Commerce App',
-        url: 'https://github.com/maitamdev',
-        image: 'woodkid-volcano-robot.ktx',
-        imageMini: 'woodkid-volcano-robot-mini.ktx'
+        title: 'UML Generator',
+        url: 'https://uml-gen-nine.vercel.app',
+        image: 'uml-gen.png',
+        imageMini: 'uml-gen-mini.png'
     },
     {
-        title: 'Physics Engine Demo',
-        url: 'https://github.com/maitamdev',
-        image: 'bounce-friday.ktx',
-        imageMini: 'bounce-friday-mini.ktx'
+        title: 'Build ChatGPT From Scratch',
+        url: 'https://github.com/maitamdev/build-chatgpt-from-scratch',
+        image: 'build-chatgpt.png',
+        imageMini: 'build-chatgpt-mini.png'
     },
     {
-        title: 'VFX Flames Experiment',
-        url: 'https://github.com/maitamdev',
-        image: 'vfx-flames.ktx',
-        imageMini: 'vfx-flames-mini.ktx'
+        title: '2048 AI',
+        url: 'https://maitamdev.github.io/2048-ai/',
+        image: '2048-ai.png',
+        imageMini: '2048-ai-mini.png'
     },
     {
-        title: 'Tornado Particle System',
-        url: 'https://github.com/maitamdev',
-        image: 'vfx-tornado.ktx',
-        imageMini: 'vfx-tornado-mini.ktx'
+        title: 'Smart Practice',
+        url: 'https://smart-practice.vercel.app',
+        image: 'smart-practice.png',
+        imageMini: 'smart-practice-mini.png'
     },
     {
-        title: 'DOOM Portal WebGL',
-        url: 'https://github.com/maitamdev',
-        image: 'doom-portal.ktx',
-        imageMini: 'doom-portal-mini.ktx'
+        title: 'CodeMind',
+        url: 'https://code-mind-gamma.vercel.app',
+        image: 'codemind.png',
+        imageMini: 'codemind-mini.png'
     },
     {
-        title: 'Organic Sphere Simulator',
-        url: 'https://github.com/maitamdev',
-        image: 'organic-sphere.ktx',
-        imageMini: 'organic-sphere-mini.ktx'
+        title: 'Eng-AI',
+        url: 'https://eng-ai-pearl.vercel.app',
+        image: 'eng-ai.png',
+        imageMini: 'eng-ai-mini.png'
     },
     {
-        title: 'WebGPU Compute Attractors',
-        url: 'https://github.com/maitamdev',
-        image: 'attractors.ktx',
-        imageMini: 'attractors-mini.ktx'
+        title: 'Edu Lab',
+        url: 'https://edu-lab-bice.vercel.app',
+        image: 'edu-lab.png',
+        imageMini: 'edu-lab-mini.png'
+    },
+    {
+        title: 'Classic Portfolio',
+        url: 'https://maitam-pf.vercel.app',
+        image: 'classic-portfolio.png',
+        imageMini: 'classic-portfolio-mini.png'
     }
 ]

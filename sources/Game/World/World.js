@@ -12,6 +12,7 @@ import { Lightnings } from './Lightnings.js'
 import { Snow } from './Snow.js'
 import { Whispers } from './Whispers.js'
 import { VisualVehicle } from './VisualVehicle.js'
+import { VisualWalker } from './VisualWalker.js'
 import { VisualTornado } from './VisualTornado.js'
 import { Flowers } from './Flowers.js'
 import { Bricks } from './Bricks.js'
@@ -54,6 +55,7 @@ export class World
         else if(step === 1)
         {
             this.visualVehicle = new VisualVehicle(this.game.resources.vehicle.scene)
+            this.visualWalker = new VisualWalker(this.game.resources.character)
             this.floor = new Floor()
             this.waterSurface = new WaterSurface()
             this.grass = new Grass()

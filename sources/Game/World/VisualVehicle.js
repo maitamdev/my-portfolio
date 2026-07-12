@@ -424,6 +424,17 @@ export class VisualVehicle
 
     update()
     {
+        // Hide car while walking
+        if(this.game.player?.locomotion === 'walk')
+        {
+            if(this.parts.chassis)
+                this.parts.chassis.visible = false
+            return
+        }
+
+        if(this.parts.chassis)
+            this.parts.chassis.visible = true
+
         const physicalVehicle = this.game.physicalVehicle
         
         // Update headlight global uniforms
